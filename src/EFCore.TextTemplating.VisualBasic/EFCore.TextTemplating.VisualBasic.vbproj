@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>EFCore.TextTemplating.VisualBasic</RootNamespace>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="MyDbContextGenerator.vb">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MyDbContextGenerator.tt</DependentUpon>
+    </None>
+    <None Include="MyEntityTypeGenerator.vb">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MyEntityTypeGenerator.tt</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets></IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Bricelam.EntityFrameworkCore.VisualBasic">
+      <HintPath>..\..\..\EFCore.VisualBasic\EFCore.VisualBasic\bin\Release\netstandard2.1\Bricelam.EntityFrameworkCore.VisualBasic.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="MyDbContextGenerator.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <CustomToolNamespace>Templates</CustomToolNamespace>
+      <LastGenOutput>MyDbContextGenerator.vb</LastGenOutput>
+    </None>
+    <None Update="MyEntityTypeConfigurationGenerator.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>MyEntityTypeConfigurationGenerator.vb</LastGenOutput>
+      <CustomToolNamespace></CustomToolNamespace>
+    </None>
+    <None Update="MyEntityTypeConfigurationGenerator.txt">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MyEntityTypeConfigurationGenerator.tt</DependentUpon>
+    </None>
+    <None Update="MyEntityTypeGenerator - Copy %282%29.txt">
+      <DependentUpon>MyEntityTypeGenerator.txt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </None>
+    <None Update="MyEntityTypeGenerator.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <CustomToolNamespace></CustomToolNamespace>
+      <LastGenOutput>MyEntityTypeGenerator.vb</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="MyDbContextGenerator.vb">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MyDbContextGenerator.tt</DependentUpon>
+    </Compile>
+    <Compile Update="MyEntityTypeConfigurationGenerator.vb">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MyEntityTypeConfigurationGenerator.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

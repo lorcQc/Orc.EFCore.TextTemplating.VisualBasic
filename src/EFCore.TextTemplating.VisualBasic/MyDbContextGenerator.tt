@@ -1,0 +1,44 @@
+﻿<#@ template language="VB" inherits="MyCodeGeneratorBase" visibility="internal" linePragmas="false" #>
+<#@ parameter name="Model" type="Microsoft.EntityFrameworkCore.Metadata.IModel" #>
+<#@ parameter name="ModelNamespace" type="System.String" #>
+<#@ parameter name="Namespace" type="System.String" #>
+<#@ parameter name="ContextName" type="System.String" #>
+<#@ parameter name="ConnectionString" type="System.String" #>
+<#@ parameter name="SuppressConnectionStringWarning" type="System.Boolean" #>
+<#@ parameter name="UseDataAnnotations" type="System.Boolean" #>
+<#@ parameter name="Code" type="Microsoft.EntityFrameworkCore.Design.ICSharpHelper" #>
+<#@ parameter name="ProviderCode" type="Microsoft.EntityFrameworkCore.Scaffolding.IProviderConfigurationCodeGenerator" #>
+<#@ parameter name="AnnotationCode" type="Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore.Scaffolding" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore.Metadata.Internal" #>
+Imports System
+Imports Microsoft.VisualBasic
+Imports Microsoft.EntityFrameworkCore
+<#	If Not String.IsNullOrEmpty(ModelNamespace) Then #>
+Imports <#= ModelNamespace #>
+<#	End If #>
+
+<#	If Not String.IsNullOrEmpty([Namespace]) Then #>
+Namespace <#= [Namespace] #>
+<#	End If #>
+
+	Public Partial Class <#= contextName #>
+		Inherits DbContext
+
+		Public Sub New()
+		End Sub
+
+		Public Sub New(options As DbContextOptions(Of <#= contextName #>))
+              MyBase.New(options)
+		End Sub
+
+	End Class
+
+	<# For Each entityType in Model.GetEntityTypes() #>
+		Public Overridable Property <#= entityType.GetDbSetName() #> As DbSet(Of <#= entityType.Name #>)
+	<# Next	#>
+
+
+<#	If Not String.IsNullOrEmpty([Namespace]) Then #>
+End Namespace
+<#	End If #>
