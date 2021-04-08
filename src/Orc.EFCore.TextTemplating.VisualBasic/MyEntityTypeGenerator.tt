@@ -1,0 +1,58 @@
+﻿<#@ template language="VB" inherits="MyCodeGeneratorBase" visibility="internal" linePragmas="false" #>
+
+<#@ parameter name="EntityType" type="Microsoft.EntityFrameworkCore.Metadata.IEntityType" #>
+<#@ parameter name="ModelNamespace" type="System.String" #>
+<#@ parameter name="UseDataAnnotations" type="System.Boolean" #>
+<#@ parameter name="Code" type="EntityFrameworkCore.VisualBasic.Design.IVisualBasicHelper" #>
+
+<#@ import namespace="Microsoft.EntityFrameworkCore" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore.Metadata.Internal" #>
+Imports System
+Imports Microsoft.VisualBasic
+Imports System.Collections.Generic
+<# If UseDataAnnotations Then #>
+Imports System.ComponentModel.DataAnnotations
+Imports System.ComponentModel.DataAnnotations.Schema
+Imports Microsoft.EntityFrameworkCore
+<# End If #>
+
+<# If Not String.IsNullOrEmpty(ModelNamespace) Then #>
+Namespace <#= ModelNamespace #>
+<# End If
+   Dim entityTypeComment = EntityType.GetComment()
+   If entityTypeComment isnot nothing then #>
+
+    ''' <summary>
+<# For Each line As String In entityTypeComment.Split({vbCrLf, vbCr, vbLf}, StringSplitOptions.None) #>
+    ''' <#= Security.SecurityElement.Escape(line) #>
+<# Next #>
+    ''' </summary>
+<# End If #>
+
+    Public Partial Class <#= entityType.Name #>
+
+<# For Each prop In entityType.GetProperties().OrderBy(Function(p) p.GetColumnOrdinal())
+        Dim PropertyComment = prop .GetComment()
+        If PropertyComment isnot nothing then #>
+
+            ''' <summary>
+        <# For Each line As String In PropertyComment.Split({vbCrLf, vbCr, vbLf}, StringSplitOptions.None) #>
+            ''' <#= Security.SecurityElement.Escape(line) #>
+        <# Next #>
+            ''' </summary>
+        <# End If #>
+        Public Property <#= code.Identifier(prop.Name) #> As <#= code.Reference(prop.ClrType) #>
+<# Next #>
+
+<# For Each navigation in EntityType.GetNavigations()
+        Dim referencedTypeName = navigation.TargetEntityType.Name
+        Dim navigationType = If(navigation.IsCollection, $"ICollection(Of {referencedTypeName})", referencedTypeName)
+#>
+        Public Overridable Property <#= navigation.Name #> As New <#= navigationType #>
+<# Next #>
+
+    End Class
+
+<# If Not String.IsNullOrEmpty(ModelNamespace) Then #>
+End Namespace
+<#	End If #>

@@ -1,0 +1,68 @@
+﻿<#@ template language="VB" inherits="MyCodeGeneratorBase" visibility="internal" linePragmas="false" #>
+
+<#@ parameter name="Model" type="Microsoft.EntityFrameworkCore.Metadata.IModel" #>
+<#@ parameter name="ContextName" type="System.String" #>
+<#@ parameter name="ConnectionString" type="System.String" #>
+<#@ parameter name="ContextNamespace" type="System.String" #>
+<#@ parameter name="ModelNamespace" type="System.String" #>
+<#@ parameter name="UseDataAnnotations" type="System.Boolean" #>
+<#@ parameter name="SuppressConnectionStringWarning" type="System.Boolean" #>
+<#@ parameter name="suppressOnConfiguring" type="System.Boolean" #>
+<#@ parameter name="Code" type="EntityFrameworkCore.VisualBasic.Design.IVisualBasicHelper" #>
+
+<#@ parameter name="ProviderCode" type="Microsoft.EntityFrameworkCore.Scaffolding.IProviderConfigurationCodeGenerator" #>
+<#@ parameter name="AnnotationCode" type="Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator" #>
+
+<#@ import namespace="Microsoft.EntityFrameworkCore.Scaffolding" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore.Metadata.Internal" #>
+Imports System
+Imports Microsoft.VisualBasic
+Imports Microsoft.EntityFrameworkCore
+<# If Not String.IsNullOrEmpty(ModelNamespace) Then #>
+Imports <#= ModelNamespace #>
+<# End If #>
+
+<# If Not String.IsNullOrEmpty(ContextNamespace) Then #>
+Namespace <#= ContextNamespace #>
+<# End If #>
+
+	Public Partial Class <#= contextName #>
+		Inherits DbContext
+
+		Public Sub New()
+		End Sub
+
+		Public Sub New(options As DbContextOptions(Of <#= contextName #>))
+              MyBase.New(options)
+		End Sub
+
+<# For Each entityType in Model.GetEntityTypes() #>
+		Public Overridable Property <#= entityType.GetDbSetName() #> As DbSet(Of <#= entityType.Name #>)
+<# Next	#>
+<# If model.GetEntityTypes().Any() Then #>
+
+<#  End If #>
+<# For Each entityTypeError In model.GetEntityTypeErrors() #>
+		' <#= entityTypeError.Value #> Please see the warning messages."
+<# Next #>
+<# If model.GetEntityTypeErrors().Count > 0 Then #>
+        
+<# End If #>
+<# If Not suppressOnConfiguring Then #>
+		If Not optionsBuilder.IsConfigured Then
+			optionsBuilder<#= Code.Fragment(ProviderCode.GenerateUseProvider(ConnectionString)) #>
+		End IF
+
+<# End If #>
+
+		Protected Overrides Sub OnModelCreating(modelBuilder As ModelBuilder)			
+<# For Each entityType in Model.GetEntityTypes() #>
+            modelBuilder.ApplyConfiguration(New <#= entityType.Name #>Configuration())
+<# Next #>		
+		End Sub
+	
+	End Class
+
+<# If Not String.IsNullOrEmpty(ContextNamespace) Then #>
+End Namespace
+<#	End If #>

@@ -1,0 +1,55 @@
+﻿<#@ template language="VB" inherits="MyCodeGeneratorBase" visibility="internal" linePragmas="false" #>
+
+<#@ parameter name="EntityType" type="Microsoft.EntityFrameworkCore.Metadata.IEntityType" #>
+<#@ parameter name="ModelNamespace" type="System.String" #>
+<#@ parameter name="ContextNamespace" type="System.String" #>
+<#@ parameter name="UseDataAnnotations" type="System.Boolean" #>
+<#@ parameter name="Code" type="EntityFrameworkCore.VisualBasic.Design.IVisualBasicHelper" #>
+<#@ parameter name="AnnotationCode" type="Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator" #>
+
+<#@ import namespace="Microsoft.EntityFrameworkCore" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore.Design" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore.Metadata" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore.Metadata.Conventions" #>
+
+Imports Microsoft.EntityFrameworkCore
+Imports Microsoft.EntityFrameworkCore.Metadata.Builders
+Imports <#= ModelNamespace #>
+
+<# If Not String.IsNullOrEmpty(ContextNamespace) Then #>
+Namespace <#= ContextNamespace #>
+<# End If #>
+
+<#
+    Dim Name = EntityType.Name
+#>
+
+    public Class <#= Name #>Configuration
+        Implements IEntityTypeConfiguration(Of <#= Name #>)
+
+        Public Sub Configure(builder As EntityTypeBuilder(Of <#= Name #>)) Implements IEntityTypeConfiguration(Of <#= Name #>).Configure
+
+<#
+        Dim primaryKey = EntityType.FindPrimaryKey()
+        If primaryKey is nothing Then
+#>
+            builder.HasNoKey()
+<#
+        Else If Not Enumerable.SequenceEqual(primaryKey.Properties,
+                                             KeyDiscoveryConvention.DiscoverKeyProperties(
+                                                CType(primaryKey.DeclaringEntityType, IConventionEntityType),
+                                                primaryKey.DeclaringEntityType.GetProperties().Cast(Of IConventionProperty)())
+                                            ) Then
+#>
+            builder.HasKey(<#= Code.Lambda(primaryKey.Properties) #>)
+
+<#
+        End If
+#>
+
+        End Sub
+    End Class
+
+<# If Not String.IsNullOrEmpty(ContextNamespace) Then #>
+End Namespace
+<#	End If #>
